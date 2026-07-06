@@ -1,0 +1,17 @@
+{
+  "short_name": "ไทยช่วยไทย+",
+  "name": "ไทยช่วยไทย Calculator Plus",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/4064/4064213.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "index.html",
+  "background_color": "#1565c0",
+  "theme-color": "#1565c0",
+  "display": "standalone",
+  "orientation": "portrait"
+}

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ไทยช่วยไทย Calculator</title>
+    
+    <meta name="theme-color" content="#1565c0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/4064/4064213.png">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="splashScreen">
+        <div class="splash-content">
+            <div class="splash-icon">💳</div>
+            <h2>ไทยช่วยไทย</h2>
+            <p class="splash-slogan">รวยไม่ไหวแล้ว</p>
+            
+            <div class="progress-container">
+                <svg class="progress-svg" width="100" height="100" viewBox="0 0 100 100">
+                    <circle class="progress-bg-circle" cx="50" cy="50" r="42"></circle>
+                    <circle class="progress-bar-circle" cx="50" cy="50" r="42" id="progressBar"></circle>
+                </svg>
+                <div class="progress-text" id="progressText">0%</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="background"></div>
+
+    <div class="app hidden-app" id="appContainer">
+        <header>
+            <div class="logo">
+                <div class="logo-circle">💳</div>
+                <div>
+                    <h1>ไทยช่วยไทย</h1>
+                    <p>คำนวณวงเงินคงเหลือ</p>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <section class="card input-card">
+                <div class="title">วงเงินรัฐบาลคงเหลือวันนี้</div>
+                <div class="input-group">
+                    <span class="money-icon">฿</span>
+                    <input 
+                        type="text" 
+                        id="govRemain" 
+                        placeholder="เช่น 120" 
+                        autocomplete="off" 
+                        inputmode="decimal"
+                    >
+                </div>
+                <div class="hint">กรอกเฉพาะวงเงินรัฐบาลที่เหลือของวันนี้</div>
+            </section>
+
+            <section class="card result-card">
+                <div class="result-row">
+                    <div>
+                        <div class="label">ผู้ใช้ต้องจ่าย (40%)</div>
+                        <div class="value orange" id="userPay">0.00</div>
+                    </div>
+                </div>
+                <hr>
+                <div class="result-row">
+                    <div>
+                        <div class="label">ยอดใช้ได้รวมทั้งหมด</div>
+                        <div class="value green" id="totalSpend">0.00</div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer>Material Design Edition</footer>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js')
+                .then(() => console.log('Service Worker Registered'))
+                .catch(err => console.log('Service Worker Reg Error:', err));
+        }
+    </script>
+</body>
+</html>

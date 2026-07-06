@@ -1,0 +1,432 @@
+/* ==========================================================
+   ThaiSave - Material Design 3 (PWA, Splash & Circular Progress)
+   ========================================================== */
+
+:root {
+    --primary: #1565c0;
+    --primary-dark: #0d47a1;
+    --primary-light: #42a5f5;
+    --green: #16a34a;
+    --orange: #f57c00;
+    --text: #263238;
+    --text2: #607d8b;
+    --card: #ffffff;
+    --bg: #eef5ff;
+    --shadow: 0 10px 25px rgba(0, 0, 0, .10);
+    --radius: 24px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: 'Noto Sans Thai', sans-serif;
+    background: linear-gradient(135deg, #dbeafe, #eef4ff, #ffffff);
+    min-height: 100vh;
+    color: var(--text);
+    overflow-x: hidden;
+}
+
+/* ================= Splash Screen & Circular Progress ================= */
+#splashScreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: linear-gradient(135deg, #0d47a1, #1565c0, #42a5f5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 99999;
+    color: white;
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.splash-content {
+    text-align: center;
+    animation: splashPop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.splash-icon {
+    font-size: 70px;
+    margin-bottom: 10px;
+}
+
+#splashScreen h2 {
+    font-size: 34px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+}
+
+.splash-slogan {
+    font-size: 18px;
+    margin-top: 6px;
+    font-weight: 500;
+    color: #ffe082;
+}
+
+/* ตัวครอบ Progress Bar วงกลม */
+.progress-container {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    margin: 25px auto 0;
+}
+
+.progress-svg {
+    transform: rotate(-90deg); /* หมุนให้เริ่มวิ่งจากด้านบนสุด */
+}
+
+circle {
+    fill: none;
+    stroke-width: 6px;
+}
+
+.progress-bg-circle {
+    stroke: rgba(255, 255, 255, 0.2); /* เส้นขอบด้านล่างสีขาวโปร่งแสง */
+}
+
+.progress-bar-circle {
+    stroke: #ffffff; /* เส้นวิ่งดาวน์โหลดสีขาวชัดเจน */
+    stroke-linecap: round;
+    /* เส้นรอบวงคำนวณจาก 2 * PI * r (2 * 3.14159 * 42) = 263.89 */
+    stroke-dasharray: 264;
+    stroke-dashoffset: 264; /* เริ่มต้นที่ซ่อนเส้นไว้ทั้งหมด */
+    transition: stroke-dashoffset 0.05s linear;
+}
+
+/* ตัวเลขตรงกลางวงกลม */
+.progress-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 18px;
+    font-weight: 700;
+    color: #ffffff;
+    font-family: monospace, 'Noto Sans Thai'; /* ใช้ monospace ช่วยให้ตัวเลขขยับไม่สั่น */
+}
+
+@keyframes splashPop {
+    from { transform: scale(0.7); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+#splashScreen.fade-out {
+    opacity: 0;
+    transform: scale(1.05);
+    pointer-events: none;
+}
+
+.hidden-app {
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+.app {
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+/* ================= Background ================= */
+
+.background {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    background: 
+        radial-gradient(circle at 10% 20%, rgba(33, 150, 243, .18), transparent 30%), 
+        radial-gradient(circle at 90% 10%, rgba(76, 175, 80, .12), transparent 28%), 
+        radial-gradient(circle at 80% 90%, rgba(255, 152, 0, .12), transparent 30%);
+}
+
+/* ================= Container ================= */
+
+.app {
+    max-width: 460px;
+    margin: auto;
+    padding: 24px 18px 40px;
+}
+
+/* ================= Header ================= */
+
+header {
+    margin-bottom: 26px;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.logo-circle {
+    width: 68px;
+    height: 68px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+    color: white;
+    background: linear-gradient(135deg, #1976d2, #42a5f5);
+    box-shadow: 0 8px 20px rgba(25, 118, 210, .35);
+}
+
+.logo h1 {
+    font-size: 31px;
+    font-weight: 800;
+    letter-spacing: .3px;
+}
+
+.logo p {
+    margin-top: 4px;
+    font-size: 15px;
+    color: var(--text2);
+}
+
+/* ================= Card ================= */
+
+.card {
+    background: rgba(255, 255, 255, .92);
+    backdrop-filter: blur(14px);
+    border-radius: var(--radius);
+    padding: 24px;
+    box-shadow: var(--shadow);
+    margin-bottom: 22px;
+    border: 1px solid rgba(255, 255, 255, .6);
+    transition: .30s;
+    animation: cardFade .55s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 18px 40px rgba(0, 0, 0, .12);
+}
+
+/* ================= Title ================= */
+
+.title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: var(--primary-dark);
+}
+
+/* ================= Active Input & Micro-interactions ================= */
+
+.input-group {
+    position: relative;
+    border-radius: 18px;
+    padding: 2px;
+    background: #d6e7ff;
+    transition: background 0.4s ease, box-shadow 0.4s ease;
+}
+
+.input-group.active-money {
+    background: linear-gradient(135deg, #1565c0, #42a5f5, #16a34a);
+    box-shadow: 0 0 15px rgba(33, 150, 243, 0.4);
+}
+
+.money-icon {
+    position: absolute;
+    left: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text2);
+    transition: color 0.3s, scale 0.3s;
+}
+
+.input-group.active-money .money-icon {
+    color: #1565c0;
+    scale: 1.1;
+}
+
+.input-group input {
+    width: 100%;
+    height: 62px;
+    padding-left: 58px;
+    padding-right: 18px;
+    font-size: 34px;
+    font-weight: 700;
+    border-radius: 16px;
+    border: none;
+    outline: none;
+    background: white;
+    color: #263238;
+    transition: color 0.3s;
+}
+
+.input-group.active-money input {
+    color: #1565c0;
+}
+
+.input-group input::placeholder {
+    font-size: 22px;
+    font-weight: 500;
+    color: #9db4c8;
+}
+
+/* ================= Hint ================= */
+
+.hint {
+    margin-top: 12px;
+    font-size: 14px;
+    color: #78909c;
+}
+
+/* ================= Result ================= */
+
+.result-card {
+    padding-top: 12px;
+}
+
+.result-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 0;
+}
+
+.label {
+    font-size: 16px;
+    font-weight: 600;
+    color: #607d8b;
+    margin-bottom: 6px;
+}
+
+.value {
+    font-size: 42px;
+    font-weight: 800;
+    letter-spacing: .5px;
+    transition: .25s;
+    animation: numberFade .35s ease;
+}
+
+.orange { color: var(--orange); }
+.green { color: var(--green); }
+
+.result-card hr {
+    border: none;
+    height: 1px;
+    background: #e3edf6;
+    margin: 10px 0;
+}
+
+/* ================= Footer ================= */
+
+footer {
+    margin-top: 26px;
+    text-align: center;
+    font-size: 13px;
+    color: #90a4ae;
+    letter-spacing: .3px;
+}
+
+/* ================= Animation ================= */
+
+@keyframes cardFade {
+    from { opacity: 0; transform: translateY(18px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes numberFade {
+    from { opacity: .4; transform: scale(.98); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+input:focus { outline: none; }
+::selection { background: #90caf9; color: #0d47a1; }
+
+/* ================= Responsive ================= */
+
+@media(max-width:600px) {
+    .app { padding: 18px 14px 32px; }
+    .logo-circle { width: 58px; height: 58px; font-size: 26px; }
+    .logo h1 { font-size: 26px; }
+    .logo p { font-size: 14px; }
+    .card { padding: 20px; border-radius: 22px; }
+    .title { font-size: 17px; }
+    .input-group input { height: 56px; font-size: 30px; padding-left: 54px; }
+    .money-icon { font-size: 24px; left: 16px; }
+    .value { font-size: 34px; }
+}
+
+@media(min-width:768px) {
+    .app { max-width: 520px; }
+    .logo h1 { font-size: 34px; }
+    .input-group input { font-size: 36px; }
+    .value { font-size: 46px; }
+}
+
+/* ================= Dark Mode ================= */
+
+@media(prefers-color-scheme:dark) {
+    :root {
+        --card: #1f2937;
+        --text: #f3f4f6;
+        --text2: #cbd5e1;
+        --bg: #111827;
+    }
+    body {
+        background: linear-gradient(135deg, #0f172a, #111827, #1e293b);
+        color: var(--text);
+    }
+    #splashScreen {
+        background: linear-gradient(135deg, #030712, #0f172a, #1e293b);
+    }
+    .card {
+        background: rgba(31, 41, 55, .90);
+        border: 1px solid rgba(255, 255, 255, .08);
+    }
+    .input-group {
+        background: #334155;
+    }
+    .input-group.active-money {
+        background: linear-gradient(135deg, #38bdf8, #60a5fa, #34d399);
+    }
+    .input-group input {
+        background: #111827;
+        color: #ffffff;
+    }
+    .input-group.active-money input {
+        color: #38bdf8;
+    }
+    .input-group input::placeholder {
+        color: #64748b;
+    }
+    .label { color: #cbd5e1; }
+    .result-card hr { background: #374151; }
+    footer { color: #94a3b8; }
+}
+
+/* ================= Print ================= */
+
+@media print {
+    body { background: #ffffff; }
+    .background { display: none; }
+    .card { box-shadow: none; border: 1px solid #ddd; }
+    footer { display: none; }
+}
+
+/* ================= Utility ================= */
+
+.hidden { display: none !important; }
+.center { text-align: center; }
+.mt-10 { margin-top: 10px; }
+.mt-20 { margin-top: 20px; }
+.mb-10 { margin-bottom: 10px; }
+.mb-20 { margin-bottom: 20px; }
+.w-100 { width: 100%; }
