@@ -186,8 +186,8 @@ header {
 
 /* ปรับขนาดและลักษณะรูปภาพโลโก้ใน Header */
 .logo-circle img {
-    width: 85px;
-    height: 85px;
+    width: 65px;
+    height: 65px;
     object-fit: contain;
 }
 
