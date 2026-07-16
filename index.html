@@ -20,8 +20,11 @@
 
     <div id="splashScreen">
         <div class="splash-content">
-            <div class="splash-icon">💳</div>
+            <div class="splash-icon">
+                <img src="my-logo.png" alt="App Logo">
+            </div>
             <h2>ไทยช่วยไทย</h2>
+	         <h3>60/40</h3>
             <p class="splash-slogan">รวยไม่ไหวแล้วโว้ย</p>
             
             <div class="progress-container">
@@ -39,9 +42,11 @@
     <div class="app hidden-app" id="appContainer">
         <header>
             <div class="logo">
-                <div class="logo-circle">💳</div>
+                <div class="logo-circle">
+                    <img src="my-logo.png" alt="App Logo">
+                </div>
                 <div>
-                    <h1>ไทยช่วยไทย</h1>
+                    <h1>ไทยช่วยไทย 60/40</h1>
                     <p>คำนวณวงเงินคงเหลือ</p>
                 </div>
             </div>
@@ -60,13 +65,13 @@
                         inputmode="decimal"
                     >
                 </div>
-                <div class="hint">กรอกเฉพาะวงเงินรัฐบาลที่เหลือของวันนี้</div>
+                <div class="hint">กรอกเฉพาะวงเงินรัฐบาล</div>
             </section>
 
             <section class="card result-card">
                 <div class="result-row">
                     <div>
-                        <div class="label">ผู้ใช้ต้องจ่าย (40%)</div>
+                        <div class="label">ผู้ใช้ต้องเติมเงิน (40%)</div>
                         <div class="value orange" id="userPay">0.00</div>
                     </div>
                 </div>
@@ -78,11 +83,42 @@
                     </div>
                 </div>
             </section>
+
+            <section class="card price-card">
+                <div class="title">คำนวณสัดส่วนราคาสินค้า</div>
+                <div class="input-group" id="productInputGroup">
+                    <span class="money-icon">฿</span>
+                    <input 
+                        type="text" 
+                        id="productPrice" 
+                        placeholder="กรอกราคาสินค้า เช่น 100" 
+                        autocomplete="off" 
+                        inputmode="decimal"
+                    >
+                </div>
+                <div class="hint">กรอกราคาสินค้าเพื่อแยกยอดเงิน (รัฐ 60% : คุณ 40%)</div>
+                
+                <div class="price-result-box hidden" id="priceResultBox">
+                    <div class="price-result-row">
+                        <span class="price-label">🏛️ รัฐบาลออกให้ (60%):</span>
+                        <span class="price-value text-green" id="govShareVal">0.00</span>
+                    </div>
+                    <div class="price-result-row">
+                        <span class="price-label">👤 คุณจ่ายเอง (40%):</span>
+                        <span class="price-value text-orange" id="userShareVal">0.00</span>
+                    </div>
+                    <hr>
+                    <div class="price-result-row">
+                        <span class="price-label font-bold">💰 รวมค่าสินค้า:</span>
+                        <span class="price-value text-blue" id="totalProductVal">0.00</span>
+                    </div>
+                </div>
+            </section>
         </main>
 
-        <footer>Material Design Edition</footer>
+        <footer>Material Design Edition - Wp_Toretto</footer>
     </div>
-
+        
     <script src="script.js"></script>
     <script>
         if ('serviceWorker' in navigator) {

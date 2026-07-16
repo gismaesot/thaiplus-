@@ -6,13 +6,21 @@
 const govInput = document.getElementById("govRemain");
 const userPay = document.getElementById("userPay");
 const totalSpend = document.getElementById("totalSpend");
-const inputGroup = document.querySelector(".input-group");
+const inputGroup = document.getElementById("govRemain").closest('.input-group');
 const splashScreen = document.getElementById("splashScreen");
 const appContainer = document.getElementById("appContainer");
 
 // อุปกรณ์อ้างอิงความก้าวหน้า Progress
 const progressBar = document.getElementById("progressBar");
 const progressText = document.getElementById("progressText");
+
+// --- สมาชิกใหม่: ตัวแปรฟังก์ชันคำนวณสัดส่วนราคสินค้า 60/40 ---
+const productPriceInput = document.getElementById("productPrice");
+const productInputGroup = document.getElementById("productInputGroup");
+const priceResultBox = document.getElementById("priceResultBox");
+const govShareVal = document.getElementById("govShareVal");
+const userShareVal = document.getElementById("userShareVal");
+const totalProductVal = document.getElementById("totalProductVal");
 
 /* ---------- 3. ระบบนับเปอร์เซ็นต์และเส้นวงกลมโหลดวิ่ง (2 วินาที) ---------- */
 window.addEventListener("DOMContentLoaded", () => {
@@ -49,7 +57,6 @@ window.addEventListener("DOMContentLoaded", () => {
         progressText.textContent = percent + "%";
 
         // 2. อัปเดตเส้นวิ่ง SVG ขยับวงกลม
-        // สูตร: เอาเส้นรอบวงทั้งหมดลบด้วยความยาวที่โหลดไปแล้ว
         let offset = strokeDasharray - (strokeDasharray * percent) / 100;
         progressBar.style.strokeDashoffset = offset;
 
@@ -80,7 +87,7 @@ function parseValue(value) {
     return Number(value.toString().replace(/,/g, ""));
 }
 
-/* ---------- คำนวณ ---------- */
+/* ---------- คำนวณกระเป๋าเงินหลัก ---------- */
 function calculate() {
     let gov = parseValue(govInput.value);
 
@@ -124,10 +131,9 @@ function triggerAnimation(element) {
     element.style.animation = null;
 }
 
-/* ---------- พิมพ์แล้วคำนวณ ---------- */
+/* ---------- พิมพ์แล้วคำนวณช่องแรก ---------- */
 govInput.addEventListener("input", function () {
     let value = this.value;
-
     value = value.replace(/,/g, ""); 
     value = value.replace(/[^\d.]/g, "");
 
@@ -140,7 +146,7 @@ govInput.addEventListener("input", function () {
     calculate();
 });
 
-/* ---------- ตอนกำลังพิมพ์ (Focus) ---------- */
+/* ---------- ตอนกำลังพิมพ์ (Focus) ช่องแรก ---------- */
 govInput.addEventListener("focus", function() {
     let num = parseValue(this.value);
     if (num === 0) {
@@ -150,7 +156,7 @@ govInput.addEventListener("focus", function() {
     }
 });
 
-/* ---------- ออกจากช่อง (Blur) ---------- */
+/* ---------- ออกจากช่อง (Blur) ช่องแรก ---------- */
 govInput.addEventListener("blur", function () {
     let num = parseValue(this.value);
     if (isNaN(num) || num === 0) {
@@ -161,11 +167,80 @@ govInput.addEventListener("blur", function () {
     calculate();
 });
 
-/* ---------- กด Enter ---------- */
+/* ---------- กด Enter ช่องแรก ---------- */
 govInput.addEventListener("keydown", function (e) {
     if (e.key === "Enter") {
         this.blur();
     }
 });
 
+
+// ==========================================================
+// ➕ ฟังก์ชันเสริมระบบใหม่: คำนวณสัดส่วนราคาสินค้า 60/40 เรียลไทม์
+// ==========================================================
+
+function calculateProductPrice() {
+    let price = parseValue(productPriceInput.value);
+
+    if (isNaN(price) || price <= 0) {
+        productInputGroup.classList.remove("active-money");
+        priceResultBox.classList.add("hidden");
+        return;
+    }
+
+    // เปิดขอบเรืองแสงสีฟ้าเขียว และเปิดแสดงกล่องผลแยกส่วน
+    productInputGroup.classList.add("active-money");
+    priceResultBox.classList.remove("hidden");
+
+    // คำนวณแยก 60% และ 40%
+    const govShare = price * 0.60;
+    const userShare = price * 0.40;
+
+    // ใส่ข้อมูลแบบทศนิยม 2 ตำแหน่ง
+    govShareVal.textContent = formatNumber(govShare);
+    userShareVal.textContent = formatNumber(userShare);
+    totalProductVal.textContent = formatNumber(price);
+}
+
+/* ---------- ดักเหตุการณ์กรอกช่องราคาสินค้า ---------- */
+productPriceInput.addEventListener("input", function () {
+    let value = this.value;
+    value = value.replace(/,/g, ""); 
+    value = value.replace(/[^\d.]/g, "");
+
+    const parts = value.split(".");
+    if (parts.length > 2) {
+        value = parts[0] + "." + parts.slice(1).join("");
+    }
+
+    this.value = value;
+    calculateProductPrice();
+});
+
+productPriceInput.addEventListener("focus", function() {
+    let num = parseValue(this.value);
+    if (num === 0) {
+        this.value = "";
+    } else {
+        this.value = num.toString();
+    }
+});
+
+productPriceInput.addEventListener("blur", function () {
+    let num = parseValue(this.value);
+    if (isNaN(num) || num === 0) {
+        this.value = "";
+    } else {
+        this.value = formatNumber(num);
+    }
+    calculateProductPrice();
+});
+
+productPriceInput.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") {
+        this.blur();
+    }
+});
+
+// เรียกใช้งานฟังก์ชันเริ่มต้นตอนโหลดแอป
 calculate();
