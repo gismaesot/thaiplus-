@@ -1,6 +1,6 @@
 /* ==========================================================
    ThaiSave Calculator - Plus PWA Edition
-   Version 1.6 (PWA Active Edition)
+   Version 1.6.1 (Super Safe & PWA Active)
 ========================================================== */
 
 // ==========================================================
@@ -8,9 +8,10 @@
 // ==========================================================
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
+        // ลงทะเบียนตัวติดตั้ง PWA
         navigator.serviceWorker.register('sw.js')
             .then(reg => console.log('Service Worker registered successfully!', reg))
-            .catch(err => console.log('Service Worker registration failed.', err));
+            .catch(err => console.error('Service Worker registration failed.', err));
     });
 }
 
@@ -23,13 +24,17 @@ const totalBudget = document.getElementById("totalBudget");
 const inputGroup = document.querySelector(".input-group");
 
 if (govInput) {
-    // ดึงเอฟเฟกต์แสงไฟเมื่อมีการคลิกที่ช่องกรอกเงิน
+    // ดึงเอฟเฟกต์แสงไฟเมื่อมีการคลิกที่ช่องกรอกเงิน (ตรวจสอบความปลอดภัยก่อนใช้)
     govInput.addEventListener("focus", () => {
-        inputGroup.classList.add("active-money");
+        if (inputGroup) {
+            inputGroup.classList.add("active-money");
+        }
     });
 
     govInput.addEventListener("blur", () => {
-        inputGroup.classList.remove("active-money");
+        if (inputGroup) {
+            inputGroup.classList.remove("active-money");
+        }
     });
 
     // ฟังก์ชันคำนวณยอดเงินสะสมเรียลไทม์
@@ -37,19 +42,22 @@ if (govInput) {
         const govMoney = parseFloat(this.value) || 0;
         
         if (govMoney <= 0) {
-            coPayValue.textContent = "0.00";
-            totalBudget.textContent = "0.00";
+            if (coPayValue) coPayValue.textContent = "0.00";
+            if (totalBudget) totalBudget.textContent = "0.00";
             return;
         }
 
-        // สูตรคำนวณ:
-        // เงินรัฐ 60% -> เงินเราเติม 40% คิดเป็น: (เงินรัฐ * 40) / 60
+        // สูตรคำนวณ: เงินรัฐ 60% -> เงินเราเติม 40%
         const userMoney = (govMoney * 40) / 60;
         const total = govMoney + userMoney;
 
         // แสดงผลลัพธ์ทศนิยม 2 ตำแหน่ง พร้อมใส่คอมมาคั่นหลักพัน
-        coPayValue.textContent = userMoney.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        totalBudget.textContent = total.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        if (coPayValue) {
+            coPayValue.textContent = userMoney.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+        if (totalBudget) {
+            totalBudget.textContent = total.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
     });
 }
 
@@ -73,13 +81,11 @@ if (productPriceInput) {
             return;
         }
 
-        // สูตรคำนวณราคาสินค้า:
-        // รัฐช่วยจ่าย 60% ของราคาสินค้า
-        // เราต้องจ่ายเอง 40% ของราคาสินค้า
+        // สูตรคำนวณราคาสินค้า: รัฐช่วย 60% และ เราจ่ายเอง 40%
         const govShare = price * 0.60;
         const userShare = price * 0.40;
 
-        // อัปเดตตัวเลขลงในกล่องผลลัพธ์
+        // อัปเดตตัวเลขลงในกล่องผลลัพธ์อย่างปลอดภัย
         if (payGovValue) {
             payGovValue.textContent = govShare.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         }
