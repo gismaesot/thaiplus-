@@ -10,7 +10,7 @@ const ASSETS = [
   'style.css',
   'script.js',
   'manifest.json',
-  'https://cdn-icons-png.flaticon.com/512/4064/4064213.png'
+  'my-logo.png'
 ];
 
 // 1. ติดตั้ง Service Worker และบันทึกไฟล์พื้นฐานลงแคช
