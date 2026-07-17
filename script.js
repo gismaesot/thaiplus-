@@ -3,6 +3,42 @@
    Version 1.4 (Circular Loading Splash Screen)
 ========================================== */
 
+// ==========================================================
+// 🚀 ระบบตรวจจับการอัปเดตและบังคับรีเซ็ตแคชอัตโนมัติ (แก้ไขปัญหามือถือค้างเวอร์ชันเก่า)
+// ==========================================================
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js')
+        .then(reg => {
+            console.log('Service Worker Registered successfully.');
+
+            // คอยตรวจจับว่ามีโค้ดเวอร์ชันใหม่ที่เราเพิ่ง Commit อัปเดตบน GitHub หรือไม่
+            reg.addEventListener('updatefound', () => {
+                const newWorker = reg.installing;
+                newWorker.addEventListener('statechange', () => {
+                    // เมื่ออุปกรณ์ดาวน์โหลดและติดตั้งโค้ดเวอร์ชันใหม่ล่าสุดเสร็จสิ้น
+                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                        console.log('New update detected! Clearing cache and reloading...');
+                        
+                        // เคลียร์ Cache Storage ทั้งหมดในเครื่อง แล้วทำการบังคับรีเซ็ตหน้าจอทันทีเพื่อแสดงแอปเวอร์ชันใหม่ล่าสุด
+                        caches.keys().then(cacheNames => {
+                            return Promise.all(
+                                cacheNames.map(cacheName => caches.delete(cacheName))
+                            );
+                        }).then(() => {
+                            window.location.reload();
+                        });
+                    }
+                });
+            });
+        })
+        .catch(err => {
+            console.error('Service Worker registration failed:', err);
+        });
+}
+
+// ==========================================================
+// ตัวแปรและฟังก์ชันแอปหลักเดิมของคุณ
+// ==========================================================
 const govInput = document.getElementById("govRemain");
 const userPay = document.getElementById("userPay");
 const totalSpend = document.getElementById("totalSpend");
@@ -114,7 +150,7 @@ function calculate() {
     }
     if (totalSpend.textContent !== formattedTotal) {
         totalSpend.textContent = formattedTotal;
-        triggerAnimation(totalSpend);
+        triggerAnimation(totalTotal);
     }
 
     if (gov > 0) {
