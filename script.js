@@ -1,252 +1,95 @@
-/* ==========================================
+/* ==========================================================
    ThaiSave Calculator - Plus PWA Edition
-   Version 1.4 (Fixed Update Edition)
-========================================== */
+   Version 1.6 (PWA Active Edition)
+========================================================== */
 
 // ==========================================================
-// 💥 ระบบหักดิบทำลาย Service Worker ตัวเก่าที่ค้างและล็อกระบบ
+// 🚀 1. เปิดระบบลงทะเบียน Service Worker เพื่อให้กดติดตั้งแอปได้
 // ==========================================================
 if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.getRegistrations().then(function(registrations) {
-        for(let registration of registrations) {
-            // สั่งยกเลิกการลงทะเบียน Service Worker ทั้งหมดที่ค้างอยู่ในเครื่อง
-            registration.unregister().then(function(boolean) {
-                if(boolean) {
-                    console.log('Old Service Worker unregistered successfully.');
-                    
-                    // ทำการล้างคลังแคชไฟล์ (Cache Storage) ทั้งหมดทิ้งทันที
-                    caches.keys().then(function(names) {
-                        for (let name of names) caches.delete(name);
-                    }).then(function() {
-                        // รีเฟรชหน้าจอตัวเองอัตโนมัติ 1 ครั้งเพื่อดึงโค้ดใหม่แกะกล่องจาก GitHub มาใช้
-                        window.location.reload();
-                    });
-                }
-            });
-        }
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js')
+            .then(reg => console.log('Service Worker registered successfully!', reg))
+            .catch(err => console.log('Service Worker registration failed.', err));
     });
 }
 
 // ==========================================================
-// ตัวแปรและฟังก์ชันแอปหลักเดิมของคุณ (ทำงานได้เต็มประสิทธิภาพแล้ว)
+// 💸 2. ระบบคำนวณวงเงินคงเหลือ (60%) และเงินที่ผู้ใช้ต้องเติม (40%)
 // ==========================================================
 const govInput = document.getElementById("govRemain");
-const userPay = document.getElementById("userPay");
-const totalSpend = document.getElementById("totalSpend");
-const inputGroup = document.getElementById("govRemain").closest('.input-group');
-const splashScreen = document.getElementById("splashScreen");
-const appContainer = document.getElementById("appContainer");
+const coPayValue = document.getElementById("coPayValue");
+const totalBudget = document.getElementById("totalBudget");
+const inputGroup = document.querySelector(".input-group");
 
-const progressBar = document.getElementById("progressBar");
-const progressText = document.getElementById("progressText");
+if (govInput) {
+    // ดึงเอฟเฟกต์แสงไฟเมื่อมีการคลิกที่ช่องกรอกเงิน
+    govInput.addEventListener("focus", () => {
+        inputGroup.classList.add("active-money");
+    });
 
-const productPriceInput = document.getElementById("productPrice");
-const productInputGroup = document.getElementById("productInputGroup");
-const priceResultBox = document.getElementById("priceResultBox");
-const govShareVal = document.getElementById("govShareVal");
-const userShareVal = document.getElementById("userShareVal");
-const totalProductVal = document.getElementById("totalProductVal");
+    govInput.addEventListener("blur", () => {
+        inputGroup.classList.remove("active-money");
+    });
 
-/* ---------- ระบบนับเปอร์เซ็นต์และเส้นวงกลมโหลดวิ่ง ---------- */
-window.addEventListener("DOMContentLoaded", () => {
-    const duration = 2000; 
-    const intervalTime = 20; 
-    let currentTime = 0;
-    const strokeDasharray = 264; 
-
-    const loadingInterval = setInterval(() => {
-        currentTime += intervalTime;
-        let percent = Math.floor((currentTime / duration) * 100);
+    // ฟังก์ชันคำนวณยอดเงินสะสมเรียลไทม์
+    govInput.addEventListener("input", function() {
+        const govMoney = parseFloat(this.value) || 0;
         
-        if (percent >= 100) {
-            percent = 100;
-            clearInterval(loadingInterval);
-            
-            setTimeout(() => {
-                splashScreen.classList.add("fade-out");
-                appContainer.classList.remove("hidden-app");
-                
-                setTimeout(() => {
-                    govInput.focus();
-                }, 300);
-            }, 100);
+        if (govMoney <= 0) {
+            coPayValue.textContent = "0.00";
+            totalBudget.textContent = "0.00";
+            return;
         }
 
-        progressText.textContent = percent + "%";
-        let offset = strokeDasharray - (strokeDasharray * percent) / 100;
-        progressBar.style.strokeDashoffset = offset;
+        // สูตรคำนวณ:
+        // เงินรัฐ 60% -> เงินเราเติม 40% คิดเป็น: (เงินรัฐ * 40) / 60
+        const userMoney = (govMoney * 40) / 60;
+        const total = govMoney + userMoney;
 
-    }, intervalTime);
-});
-
-/* ---------- โหลดข้อมูลเดิม ---------- */
-window.addEventListener("load", () => {
-    const saved = localStorage.getItem("govRemain");
-    if (saved) {
-        const num = parseValue(saved);
-        govInput.value = isNaN(num) || num === 0 ? "" : formatNumber(num);
-        calculate();
-    }
-});
-
-/* ---------- ฟอร์แมตตัวเลข ---------- */
-function formatNumber(num) {
-    return Number(num).toLocaleString("th-TH", {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
+        // แสดงผลลัพธ์ทศนิยม 2 ตำแหน่ง พร้อมใส่คอมมาคั่นหลักพัน
+        coPayValue.textContent = userMoney.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        totalBudget.textContent = total.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     });
 }
 
-/* ---------- แปลงข้อความเป็นตัวเลข ---------- */
-function parseValue(value) {
-    if (!value) return 0;
-    return Number(value.toString().replace(/,/g, ""));
-}
-
-/* ---------- คำนวณกระเป๋าเงินหลัก ---------- */
-function calculate() {
-    let gov = parseValue(govInput.value);
-
-    if (isNaN(gov) || gov < 0) {
-        gov = 0;
-    }
-
-    if (gov > 0) {
-        inputGroup.classList.add("active-money");
-    } else {
-        inputGroup.classList.remove("active-money");
-    }
-
-    const total = gov / 0.60;
-    const user = total * 0.40;
-
-    const formattedUser = formatNumber(user);
-    const formattedTotal = formatNumber(total);
-
-    if (userPay.textContent !== formattedUser) {
-        userPay.textContent = formattedUser;
-        triggerAnimation(userPay);
-    }
-    if (totalSpend.textContent !== formattedTotal) {
-        totalSpend.textContent = formattedTotal;
-        triggerAnimation(totalSpend);
-    }
-
-    if (gov > 0) {
-        localStorage.setItem("govRemain", gov.toString());
-    } else {
-        localStorage.removeItem("govRemain");
-    }
-}
-
-/* ---------- ฟังก์ชันกระตุ้นอนิเมชัน ---------- */
-function triggerAnimation(element) {
-    element.style.animation = 'none';
-    element.offsetHeight; 
-    element.style.animation = null;
-}
-
-/* ---------- พิมพ์แล้วคำนวณช่องแรก ---------- */
-govInput.addEventListener("input", function () {
-    let value = this.value;
-    value = value.replace(/,/g, ""); 
-    value = value.replace(/[^\d.]/g, "");
-
-    const parts = value.split(".");
-    if (parts.length > 2) {
-        value = parts[0] + "." + parts.slice(1).join("");
-    }
-
-    this.value = value;
-    calculate();
-});
-
-govInput.addEventListener("focus", function() {
-    let num = parseValue(this.value);
-    if (num === 0) {
-        this.value = "";
-    } else {
-        this.value = num.toString();
-    }
-});
-
-govInput.addEventListener("blur", function () {
-    let num = parseValue(this.value);
-    if (isNaN(num) || num === 0) {
-        this.value = "";
-    } else {
-        this.value = formatNumber(num);
-    }
-    calculate();
-});
-
-govInput.addEventListener("keydown", function (e) {
-    if (e.key === "Enter") {
-        this.blur();
-    }
-});
-
 // ==========================================================
-// ➕ ฟังก์ชันเสริมระบบใหม่: คำนวณสัดส่วนราคาสินค้า 60/40 เรียลไทม์
+// 🛍️ 3. ระบบคำนวณแยกสัดส่วนราคาสินค้ารายชิ้น (60/40)
 // ==========================================================
-function calculateProductPrice() {
-    let price = parseValue(productPriceInput.value);
+const productPriceInput = document.getElementById("productPrice");
+const priceResultBox = document.getElementById("priceResultBox");
+const payGovValue = document.getElementById("payGovValue");
+const payUserValue = document.getElementById("payUserValue");
 
-    if (isNaN(price) || price <= 0) {
-        productInputGroup.classList.remove("active-money");
-        priceResultBox.classList.add("hidden");
-        return;
-    }
+if (productPriceInput) {
+    productPriceInput.addEventListener("input", function() {
+        const price = parseFloat(this.value) || 0;
 
-    productInputGroup.classList.add("active-money");
-    priceResultBox.classList.remove("hidden");
+        if (price <= 0) {
+            // หากไม่มีการกรอกตัวเลข หรือยอดเงินเป็น 0 ให้ซ่อนกล่องผลลัพธ์สีฟ้า
+            if (priceResultBox) {
+                priceResultBox.classList.add("hidden");
+            }
+            return;
+        }
 
-    const govShare = price * 0.60;
-    const userShare = price * 0.40;
+        // สูตรคำนวณราคาสินค้า:
+        // รัฐช่วยจ่าย 60% ของราคาสินค้า
+        // เราต้องจ่ายเอง 40% ของราคาสินค้า
+        const govShare = price * 0.60;
+        const userShare = price * 0.40;
 
-    govShareVal.textContent = formatNumber(govShare);
-    userShareVal.textContent = formatNumber(userShare);
-    totalProductVal.textContent = formatNumber(price);
+        // อัปเดตตัวเลขลงในกล่องผลลัพธ์
+        if (payGovValue) {
+            payGovValue.textContent = govShare.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+        if (payUserValue) {
+            payUserValue.textContent = userShare.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        // แสดงกล่องผลลัพธ์สีฟ้าขึ้นมาแบบมีอนิเมชันจางเข้า
+        if (priceResultBox) {
+            priceResultBox.classList.remove("hidden");
+        }
+    });
 }
-
-/* ---------- ดักเหตุการณ์กรอกช่องราคาสินค้า ---------- */
-productPriceInput.addEventListener("input", function () {
-    let value = this.value;
-    value = value.replace(/,/g, ""); 
-    value = value.replace(/[^\d.]/g, "");
-
-    const parts = value.split(".");
-    if (parts.length > 2) {
-        value = parts[0] + "." + parts.slice(1).join("");
-    }
-
-    this.value = value;
-    calculateProductPrice();
-});
-
-productPriceInput.addEventListener("focus", function() {
-    let num = parseValue(this.value);
-    if (num === 0) {
-        this.value = "";
-    } else {
-        this.value = num.toString();
-    }
-});
-
-productPriceInput.addEventListener("blur", function () {
-    let num = parseValue(this.value);
-    if (isNaN(num) || num === 0) {
-        this.value = "";
-    } else {
-        this.value = formatNumber(num);
-    }
-    calculateProductPrice();
-});
-
-productPriceInput.addEventListener("keydown", function (e) {
-    if (e.key === "Enter") {
-        this.blur();
-    }
-});
-
-calculate();
