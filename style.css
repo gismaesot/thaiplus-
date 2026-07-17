@@ -1,4 +1,4 @@
-/* ================= =========================================
+/* ==========================================================
    ThaiSave - Material Design 3 (PWA, Splash & Circular Progress)
    ========================================================== */
 
@@ -55,7 +55,6 @@ body {
     animation: splashPop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-/* ตัวกล่องครอบไอคอน (เพิ่มระบบจัดกึ่งกลาง) */
 .splash-icon {
     display: flex;
     justify-content: center;
@@ -63,10 +62,9 @@ body {
     margin-bottom: 15px;
 }
 
-/* ปรับขนาดและลักษณะรูปภาพโลโก้ในหน้า Splash Screen */
 .splash-icon img {
-    width: 65px;
-    height: 65px;
+    width: 90px;
+    height: 90px;
     object-fit: contain;
 }
 
@@ -83,7 +81,6 @@ body {
     color: #ffe082;
 }
 
-/* ตัวครอบ Progress Bar วงกลม */
 .progress-container {
     position: relative;
     width: 100px;
@@ -175,19 +172,18 @@ header {
 }
 
 .logo-circle {
-    width: 40px;
-    height: 40px;
+    width: 85px;
+    height: 85px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: transparent; /* 👈 เปลี่ยนเป็นโปร่งแสง ลบสีฟ้าออก */
-    box-shadow: none;        /* 👈 ลบเงาสีฟ้าเดิมออก */
+    background: transparent;
+    box-shadow: none;        
 }
 
-/* ปรับขนาดและลักษณะรูปภาพโลโก้ใน Header */
 .logo-circle img {
-    width: 65px;
-    height: 65px;
+    width: 85px;
+    height: 85px;
     object-fit: contain;
 }
 
@@ -229,7 +225,7 @@ header {
     color: var(--primary-dark);
 }
 
-/* ================= Active Input & Micro-interactions ================= */
+/* ================= Active Input ================= */
 .input-group {
     position: relative;
     border-radius: 18px;
@@ -398,8 +394,8 @@ input:focus { outline: none; }
 /* ================= Responsive ================= */
 @media(max-width:600px) {
     .app { padding: 18px 14px 32px; }
-    .logo-circle { width: 58px; height: 58px; }
-    .logo-circle img { width: 32px; height: 32px; }
+    .logo-circle { width: 75px; height: 75px; } /* ✨ แก้ไข: ขยายขนาดกล่องครอบให้สมดุล */
+    .logo-circle img { width: 75px; height: 75px; } /* ✨ แก้ไขจุดตาย: ล็อกขนาดรูปโลโก้จริงให้เท่ากล่องครอบ ไม่ให้แตกบวม */
     .logo h1 { font-size: 26px; }
     .logo p { font-size: 14px; }
     .card { padding: 20px; border-radius: 22px; }
