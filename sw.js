@@ -1,9 +1,11 @@
-// 📌 ทุกครั้งที่มีการแก้ไขโค้ดแอป (เช่น แก้ CSS หรือเพิ่มข้อความ) 
-// ให้เปลี่ยนตัวเลขเวอร์ชันตรงนี้เพิ่มขึ้นทีละ 1 (เช่น v1.1, v1.2, v1.3) เพื่อบังคับเคลียร์เครื่องผู้ใช้ชัวร์ๆ 100%
-const CACHE_NAME = 'thaisave-v1.4-updated';
+/* ==========================================================
+   ThaiSave - Service Worker (Safe Network-First Strategy)
+   ========================================================== */
+
+// 📌 เปลี่ยนชื่อเวอร์ชันตรงนี้เพื่อบังคับเคลียร์เครื่องผู้ใช้อัตโนมัติ (ปัจจุบันขยับเป็น v1.6)
+const CACHE_NAME = 'thaisave-v1.6-active';
 
 const ASSETS = [
-  '/',
   'index.html',
   'style.css',
   'script.js',
@@ -11,19 +13,24 @@ const ASSETS = [
   'https://cdn-icons-png.flaticon.com/512/4064/4064213.png'
 ];
 
-// 1. ติดตั้งและบังคับให้ Service Worker ตัวใหม่ทำงานทันที ไม่ต้องรอยกเลิกแอปเก่า
+// 1. ติดตั้ง Service Worker และบันทึกไฟล์พื้นฐานลงแคช
 self.addEventListener('install', (e) => {
   e.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      console.log('Caching new assets...');
-      return cache.addAll(ASSETS);
-    }).then(() => {
-      return self.skipWaiting(); // 🔥 สั่งเปิดใช้งานตัวใหม่ทันทีห้ามยืนรอ
-    })
+    caches.open(CACHE_NAME)
+      .then((cache) => {
+        console.log('Caching initial assets...');
+        // ใช้addAllแบบปลอดภัย ถ้ามีไฟล์ไหนโหลดไม่ได้จะไม่ทำให้ระบบล่ม
+        return Promise.all(
+          ASSETS.map(url => {
+            return cache.add(url).catch(err => console.warn('Failed to cache:', url, err));
+          })
+        );
+      })
+      .then(() => self.skipWaiting()) // บังคับใช้งานทันทีไม่ต้องรอปิดแอปเก่า
   );
 });
 
-// 2. เคลียร์และลบ Cache เวอร์ชันเก่าทิ้งทั้งหมดทันทีที่มีการเปิดใช้งานเวอร์ชันใหม่
+// 2. ลบ Cache เวอร์ชันเก่าทิ้งทั้งหมดทันทีเมื่อตัวใหม่ทำงาน
 self.addEventListener('activate', (e) => {
   e.waitUntil(
     caches.keys().then((keys) => {
@@ -35,32 +42,39 @@ self.addEventListener('activate', (e) => {
           }
         })
       );
-    }).then(() => {
-      return self.clients.claim(); // 🔥 ควบคุมทุกแท็บหน้าจอทันที
-    })
+    }).then(() => self.clients.claim()) // ควบคุมหน้าจอทั้งหมดทันที
   );
 });
 
-// 3. ปรับกลยุทธ์ใหม่: เอาเวอร์ชันล่าสุดจากเน็ตก่อน (Network First) ถ้าไม่มีเน็ตค่อยดึงจากแคช (Cache fallback)
+// 3. จัดการดึงข้อมูล (Fetch): เน้นเอาจากอินเทอร์เน็ตก่อน (Network First) เพื่อป้องกันอาการค้าง
 self.addEventListener('fetch', (e) => {
-  // ดักจับเฉพาะไฟล์ที่เป็นของเว็บไซต์เราหรือไอคอนภายนอกที่จำเป็น
-  if (e.request.url.startsWith(self.location.origin) || e.request.url.includes('flaticon.com')) {
-    e.respondWith(
-      fetch(e.request)
-        .then((response) => {
-          // ถ้าดึงไฟล์จากเน็ตสำเร็จ ให้เอาไฟล์ใหม่นี้ไปอัปเดตทับลงในแคชด้วย
-          if (response.status === 200) {
-            const responseClone = response.clone();
-            caches.open(CACHE_NAME).then((cache) => {
-              cache.put(e.request, responseClone);
-            });
+  // ข้ามการตรวจจับหากไม่ใช่เมธอด GET (เช่น POST, PUT) เพื่อป้องกันเออร์เรอร์
+  if (e.request.method !== 'GET') return;
+
+  e.respondWith(
+    fetch(e.request)
+      .then((response) => {
+        // ถ้าได้ข้อมูลจากอินเทอร์เน็ตกลับมาปกติ ให้บันทึกลงแคชเพื่ออัปเดตไฟล์ให้ใหม่เสมอ
+        if (response && response.status === 200) {
+          const responseClone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(e.request, responseClone);
+          });
+        }
+        return response;
+      })
+      .catch(() => {
+        // หากเน็ตหลุด หรือเกิดเออร์เรอร์ ให้ดึงไฟล์จากแคชที่เคยบันทึกไว้มาใช้แก้ขัด
+        return caches.match(e.request).then((cachedResponse) => {
+          if (cachedResponse) {
+            return cachedResponse;
           }
-          return response;
-        })
-        .catch(() => {
-          // ถ้าเน็ตหลุด/ไม่มีเน็ต (Offline) ให้ไปดึงไฟล์จากแคชที่บันทึกไว้มาแสดงแทน
-          return caches.match(e.request);
-        })
-    );
-  }
+          // ถ้าไม่มีทั้งเน็ตและไม่มีไฟล์ในแคช ให้ส่งสถานะว่างเปล่ากลับไปแทนที่จะปล่อยให้แอปค้าง
+          return new Response('Network error occurred', {
+            status: 408,
+            headers: { 'Content-Type': 'text/plain' }
+          });
+        });
+      })
+  );
 });
