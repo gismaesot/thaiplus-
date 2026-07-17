@@ -1,39 +1,34 @@
 /* ==========================================
    ThaiSave Calculator - Plus PWA Edition
-   Version 1.4 (Circular Loading Splash Screen)
+   Version 1.4 (Fixed Update Edition)
 ========================================== */
 
 // ==========================================================
-// 🚀 ระบบตรวจจับการอัปเดตและบังคับรีเซ็ตแคชอัตโนมัติ
+// 💥 ระบบหักดิบทำลาย Service Worker ตัวเก่าที่ค้างและล็อกระบบ
 // ==========================================================
 if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js')
-        .then(reg => {
-            console.log('Service Worker Registered successfully.');
-
-            reg.addEventListener('updatefound', () => {
-                const newWorker = reg.installing;
-                newWorker.addEventListener('statechange', () => {
-                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                        console.log('New update detected! Clearing cache and reloading...');
-                        caches.keys().then(cacheNames => {
-                            return Promise.all(
-                                cacheNames.map(cacheName => caches.delete(cacheName))
-                            );
-                        }).then(() => {
-                            window.location.reload();
-                        });
-                    }
-                });
+    navigator.serviceWorker.getRegistrations().then(function(registrations) {
+        for(let registration of registrations) {
+            // สั่งยกเลิกการลงทะเบียน Service Worker ทั้งหมดที่ค้างอยู่ในเครื่อง
+            registration.unregister().then(function(boolean) {
+                if(boolean) {
+                    console.log('Old Service Worker unregistered successfully.');
+                    
+                    // ทำการล้างคลังแคชไฟล์ (Cache Storage) ทั้งหมดทิ้งทันที
+                    caches.keys().then(function(names) {
+                        for (let name of names) caches.delete(name);
+                    }).then(function() {
+                        // รีเฟรชหน้าจอตัวเองอัตโนมัติ 1 ครั้งเพื่อดึงโค้ดใหม่แกะกล่องจาก GitHub มาใช้
+                        window.location.reload();
+                    });
+                }
             });
-        })
-        .catch(err => {
-            console.error('Service Worker registration failed:', err);
-        });
+        }
+    });
 }
 
 // ==========================================================
-// ตัวแปรและฟังก์ชันแอปหลัก
+// ตัวแปรและฟังก์ชันแอปหลักเดิมของคุณ (ทำงานได้เต็มประสิทธิภาพแล้ว)
 // ==========================================================
 const govInput = document.getElementById("govRemain");
 const userPay = document.getElementById("userPay");
@@ -134,7 +129,7 @@ function calculate() {
     }
     if (totalSpend.textContent !== formattedTotal) {
         totalSpend.textContent = formattedTotal;
-        triggerAnimation(totalSpend); // ✨ แก้ไขจาก totalTotal เป็น totalSpend เรียบร้อยครับ
+        triggerAnimation(totalSpend);
     }
 
     if (gov > 0) {
