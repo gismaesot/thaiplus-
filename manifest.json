@@ -1,17 +1,17 @@
 {
-  "name": "ไทยช่วยไทย Calculator",
-  "short_name": "ไทยช่วยไทย",
-  "start_url": "index.html",
-  "display": "standalone",
-  "orientation": "portrait",
-  "background_color": "#1565c0",
-  "theme-color": "#1565c0",
+  "short_name": "ไทยช่วยไทย+",
+  "name": "ไทยช่วยไทย Calculator Plus",
   "icons": [
     {
-      "src": "icon-512.png",
-      "sizes": "512x512",
+      "src": "https://cdn-icons-png.flaticon.com/512/4064/4064213.png",
       "type": "image/png",
-      "purpose": "any maskable"
+      "sizes": "512x512",
+      "purpose": "any"
     }
-  ]
+  ],
+  "start_url": "index.html",
+  "background_color": "#1565c0",
+  "theme_color": "#1565c0",
+  "display": "standalone",
+  "orientation": "portrait"
 }
