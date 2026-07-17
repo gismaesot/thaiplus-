@@ -4,22 +4,18 @@
 ========================================== */
 
 // ==========================================================
-// 🚀 ระบบตรวจจับการอัปเดตและบังคับรีเซ็ตแคชอัตโนมัติ (แก้ไขปัญหามือถือค้างเวอร์ชันเก่า)
+// 🚀 ระบบตรวจจับการอัปเดตและบังคับรีเซ็ตแคชอัตโนมัติ
 // ==========================================================
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/sw.js')
         .then(reg => {
             console.log('Service Worker Registered successfully.');
 
-            // คอยตรวจจับว่ามีโค้ดเวอร์ชันใหม่ที่เราเพิ่ง Commit อัปเดตบน GitHub หรือไม่
             reg.addEventListener('updatefound', () => {
                 const newWorker = reg.installing;
                 newWorker.addEventListener('statechange', () => {
-                    // เมื่ออุปกรณ์ดาวน์โหลดและติดตั้งโค้ดเวอร์ชันใหม่ล่าสุดเสร็จสิ้น
                     if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
                         console.log('New update detected! Clearing cache and reloading...');
-                        
-                        // เคลียร์ Cache Storage ทั้งหมดในเครื่อง แล้วทำการบังคับรีเซ็ตหน้าจอทันทีเพื่อแสดงแอปเวอร์ชันใหม่ล่าสุด
                         caches.keys().then(cacheNames => {
                             return Promise.all(
                                 cacheNames.map(cacheName => caches.delete(cacheName))
@@ -37,7 +33,7 @@ if ('serviceWorker' in navigator) {
 }
 
 // ==========================================================
-// ตัวแปรและฟังก์ชันแอปหลักเดิมของคุณ
+// ตัวแปรและฟังก์ชันแอปหลัก
 // ==========================================================
 const govInput = document.getElementById("govRemain");
 const userPay = document.getElementById("userPay");
@@ -46,11 +42,9 @@ const inputGroup = document.getElementById("govRemain").closest('.input-group');
 const splashScreen = document.getElementById("splashScreen");
 const appContainer = document.getElementById("appContainer");
 
-// อุปกรณ์อ้างอิงความก้าวหน้า Progress
 const progressBar = document.getElementById("progressBar");
 const progressText = document.getElementById("progressText");
 
-// --- สมาชิกใหม่: ตัวแปรฟังก์ชันคำนวณสัดส่วนราคสินค้า 60/40 ---
 const productPriceInput = document.getElementById("productPrice");
 const productInputGroup = document.getElementById("productInputGroup");
 const priceResultBox = document.getElementById("priceResultBox");
@@ -58,41 +52,32 @@ const govShareVal = document.getElementById("govShareVal");
 const userShareVal = document.getElementById("userShareVal");
 const totalProductVal = document.getElementById("totalProductVal");
 
-/* ---------- 3. ระบบนับเปอร์เซ็นต์และเส้นวงกลมโหลดวิ่ง (2 วินาที) ---------- */
+/* ---------- ระบบนับเปอร์เซ็นต์และเส้นวงกลมโหลดวิ่ง ---------- */
 window.addEventListener("DOMContentLoaded", () => {
-    const duration = 2000; // เวลาทั้งหมด 2000ms (2 วินาที)
-    const intervalTime = 20; // อัปเดตทุกๆ 20ms เพื่อความลื่นไหล
+    const duration = 2000; 
+    const intervalTime = 20; 
     let currentTime = 0;
-    
-    // เส้นรอบวงของวงกลมใน CSS (264)
     const strokeDasharray = 264; 
 
     const loadingInterval = setInterval(() => {
         currentTime += intervalTime;
-        
-        // คำนวณความคืบหน้าเป็นสัดส่วนเปอร์เซ็นต์ (0 - 100)
         let percent = Math.floor((currentTime / duration) * 100);
         
         if (percent >= 100) {
             percent = 100;
             clearInterval(loadingInterval);
             
-            // เมื่อโหลดครบ 100% สั่งเฟดปิดหน้า Splash และเปิดหน้าแอปหลัก
             setTimeout(() => {
                 splashScreen.classList.add("fade-out");
                 appContainer.classList.remove("hidden-app");
                 
-                // สั่ง Auto Focus ช่องเงินพร้อมใช้ทันที
                 setTimeout(() => {
                     govInput.focus();
                 }, 300);
             }, 100);
         }
 
-        // 1. อัปเดตตัวเลข % บนหน้าจอ
         progressText.textContent = percent + "%";
-
-        // 2. อัปเดตเส้นวิ่ง SVG ขยับวงกลม
         let offset = strokeDasharray - (strokeDasharray * percent) / 100;
         progressBar.style.strokeDashoffset = offset;
 
@@ -131,7 +116,6 @@ function calculate() {
         gov = 0;
     }
 
-    // สลับสีขอบเรืองแสงตามสถานะตัวเลข
     if (gov > 0) {
         inputGroup.classList.add("active-money");
     } else {
@@ -150,7 +134,7 @@ function calculate() {
     }
     if (totalSpend.textContent !== formattedTotal) {
         totalSpend.textContent = formattedTotal;
-        triggerAnimation(totalTotal);
+        triggerAnimation(totalSpend); // ✨ แก้ไขจาก totalTotal เป็น totalSpend เรียบร้อยครับ
     }
 
     if (gov > 0) {
@@ -182,7 +166,6 @@ govInput.addEventListener("input", function () {
     calculate();
 });
 
-/* ---------- ตอนกำลังพิมพ์ (Focus) ช่องแรก ---------- */
 govInput.addEventListener("focus", function() {
     let num = parseValue(this.value);
     if (num === 0) {
@@ -192,7 +175,6 @@ govInput.addEventListener("focus", function() {
     }
 });
 
-/* ---------- ออกจากช่อง (Blur) ช่องแรก ---------- */
 govInput.addEventListener("blur", function () {
     let num = parseValue(this.value);
     if (isNaN(num) || num === 0) {
@@ -203,18 +185,15 @@ govInput.addEventListener("blur", function () {
     calculate();
 });
 
-/* ---------- กด Enter ช่องแรก ---------- */
 govInput.addEventListener("keydown", function (e) {
     if (e.key === "Enter") {
         this.blur();
     }
 });
 
-
 // ==========================================================
 // ➕ ฟังก์ชันเสริมระบบใหม่: คำนวณสัดส่วนราคาสินค้า 60/40 เรียลไทม์
 // ==========================================================
-
 function calculateProductPrice() {
     let price = parseValue(productPriceInput.value);
 
@@ -224,15 +203,12 @@ function calculateProductPrice() {
         return;
     }
 
-    // เปิดขอบเรืองแสงสีฟ้าเขียว และเปิดแสดงกล่องผลแยกส่วน
     productInputGroup.classList.add("active-money");
     priceResultBox.classList.remove("hidden");
 
-    // คำนวณแยก 60% และ 40%
     const govShare = price * 0.60;
     const userShare = price * 0.40;
 
-    // ใส่ข้อมูลแบบทศนิยม 2 ตำแหน่ง
     govShareVal.textContent = formatNumber(govShare);
     userShareVal.textContent = formatNumber(userShare);
     totalProductVal.textContent = formatNumber(price);
@@ -278,5 +254,4 @@ productPriceInput.addEventListener("keydown", function (e) {
     }
 });
 
-// เรียกใช้งานฟังก์ชันเริ่มต้นตอนโหลดแอป
 calculate();
